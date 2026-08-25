@@ -1,7 +1,8 @@
 # agent-skills
 
-Public APM packages maintained in this repository. Each directory under
-`packages/` is independently consumable.
+Public APM packages maintained in this repository. The perk-guild package
+provides independent mission and conversation-session scopes with visible
+guild roles. Each directory under `packages/` is independently consumable.
 
 ## Installation
 
@@ -12,7 +13,7 @@ dependencies:
   apm:
     - git: elu697/agent-skills
       path: packages/workspace-agent-perk-guild
-      ref: main
+      ref: workspace-agent-perk-guild-v0.2.0
 ```
 
 Then install the declared dependencies:
@@ -29,7 +30,7 @@ SHA.
 
 | Package | Purpose | Documentation |
 | --- | --- | --- |
-| `workspace-agent-perk-guild` | Keeps one mission's state in a durable file and supports evidence-gated or build-nothing closure | [README](packages/workspace-agent-perk-guild/README.md) |
+| `workspace-agent-perk-guild` | Keeps independent mission and conversation-session state with evidence-gated or build-nothing closure; uses visible guild roles so each assistant message carries one localized role label | [README](packages/workspace-agent-perk-guild/README.md) |
 
 When adding a package, create `packages/<name>/`, document it in that
 directory, and add it to this table.

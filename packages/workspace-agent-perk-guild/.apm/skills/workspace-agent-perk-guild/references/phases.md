@@ -1,7 +1,8 @@
 # Phase doctrine
 
-Do not prefix responses with role labels. People do not select roles. Read only
-the doctrine for the mission's current `phase`.
+Roles and phases are orthogonal. Read only the current phase doctrine, then
+select the role from the action performed. Use the phase-to-role hints in
+`roles.md` only when the action does not select a role.
 
 * [research](#research)
 * [frame](#frame)

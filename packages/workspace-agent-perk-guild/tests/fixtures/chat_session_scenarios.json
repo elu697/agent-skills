@@ -1,0 +1,54 @@
+{
+  "initial_state": "chat_sessions: []",
+  "upsert_by": "session_alias",
+  "scenarios": [
+    {
+      "name": "no-persisted-session-no-append",
+      "session_persisted": false,
+      "mission_persisted": true,
+      "existing_chat_sessions": [],
+      "expected_action": "none",
+      "expected_count": 0
+    },
+    {
+      "name": "first-persisted-session-appends",
+      "session_persisted": true,
+      "mission_persisted": true,
+      "existing_chat_sessions": [],
+      "session_alias": "alias-1",
+      "expected_action": "append",
+      "expected_count": 1
+    },
+    {
+      "name": "repeat-enable-upserts-same-alias",
+      "session_persisted": true,
+      "mission_persisted": true,
+      "existing_chat_sessions": [
+        {
+          "session_alias": "alias-1",
+          "kind": "enable",
+          "note": "first"
+        }
+      ],
+      "session_alias": "alias-1",
+      "expected_action": "upsert",
+      "expected_count": 1
+    },
+    {
+      "name": "resume-reuses-alias-without-duplicate",
+      "session_persisted": true,
+      "mission_persisted": true,
+      "existing_chat_sessions": [
+        {
+          "session_alias": "alias-1",
+          "kind": "enable",
+          "note": "first"
+        }
+      ],
+      "session_alias": "alias-1",
+      "kind": "resume",
+      "expected_action": "upsert",
+      "expected_count": 1
+    }
+  ]
+}

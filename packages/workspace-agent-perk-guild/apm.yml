@@ -1,7 +1,8 @@
 name: workspace-agent-perk-guild
-version: 0.1.1
+version: 0.2.0
 description: |
-  A perk-guild overlay for durable mission state, phase gates, evidence,
+  A perk-guild overlay with independent mission and conversation-session scopes,
+  visible guild roles, durable mission state, phase gates, evidence,
   build-nothing outcomes, and parent-level closure.
 license: MIT
 type: skill

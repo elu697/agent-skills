@@ -1,0 +1,53 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  workspace-agent-perk-guild-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install APM
+        uses: microsoft/apm-action@v1
+        with:
+          setup-only: "true"
+          apm-version: "0.28.0"
+
+      - name: Run contract tests
+        working-directory: packages/workspace-agent-perk-guild
+        run: python3 -m unittest tests/test_contract.py -v
+
+      - name: Validate package contents
+        working-directory: packages/workspace-agent-perk-guild
+        run: apm pack --dry-run --offline --json
+
+  workspace-agent-perk-guild-smoke:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - cursor
+          - claude
+          - copilot
+          - codex
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install APM
+        uses: microsoft/apm-action@v1
+        with:
+          setup-only: "true"
+          apm-version: "0.28.0"
+
+      - name: Run clean-room install
+        working-directory: packages/workspace-agent-perk-guild
+        run: bash tests/smoke_install.sh "${{ matrix.target }}"

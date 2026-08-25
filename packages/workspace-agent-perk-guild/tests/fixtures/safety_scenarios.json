@@ -1,0 +1,99 @@
+{
+  "missing_session_id": [
+    {
+      "name": "session-only-is-ephemeral",
+      "scope": "session",
+      "stable_session_id": false,
+      "mission_written": false,
+      "session_persisted": false,
+      "mission_persisted": false,
+      "append_chat_session": false
+    },
+    {
+      "name": "mission-only-persists-without-session-reference",
+      "scope": "mission",
+      "stable_session_id": false,
+      "mission_written": true,
+      "session_persisted": false,
+      "mission_persisted": true,
+      "append_chat_session": false
+    },
+    {
+      "name": "both-persists-only-mission",
+      "scope": "both",
+      "stable_session_id": false,
+      "mission_written": true,
+      "session_persisted": false,
+      "mission_persisted": true,
+      "append_chat_session": false
+    },
+    {
+      "name": "both-persisted-records-share-alias",
+      "scope": "both",
+      "stable_session_id": true,
+      "mission_written": true,
+      "session_persisted": true,
+      "mission_persisted": true,
+      "append_chat_session": true
+    }
+  ],
+  "migration": {
+    "source_version": "0.1.x",
+    "target_version": "0.2.0",
+    "kind": "breaking",
+    "legacy_file": ".ai-agent/perk-guild.yaml",
+    "legacy_action": "ignore-and-preserve",
+    "required_command": "/perk-guild-enable --scope session|mission|both",
+    "delete_after_validation": true
+  },
+  "privacy": {
+    "session_filename_key": "sha256",
+    "session_alias": "uuidv4",
+    "session_alias_reused": true,
+    "mission_chat_session_fields": ["session_alias", "kind", "note"],
+    "mission_forbidden_fields": ["session_key", "raw_host_id"],
+    "sessions_gitignore_lines": ["*", "!.gitignore"]
+  },
+  "path_contracts": [
+    {
+      "name": "existing-mission-realpath-in-one-root",
+      "target_kind": "existing",
+      "canonicalize": "target-realpath",
+      "workspace_matches": 1,
+      "state_component_symlink": false,
+      "expected": "allow"
+    },
+    {
+      "name": "existing-mission-realpath-outside-roots",
+      "target_kind": "existing",
+      "canonicalize": "target-realpath",
+      "workspace_matches": 0,
+      "state_component_symlink": false,
+      "expected": "reject"
+    },
+    {
+      "name": "new-target-parent-in-one-root",
+      "target_kind": "new",
+      "canonicalize": "nearest-existing-parent-realpath",
+      "workspace_matches": 1,
+      "state_component_symlink": false,
+      "expected": "allow"
+    },
+    {
+      "name": "new-target-parent-in-overlapping-roots",
+      "target_kind": "new",
+      "canonicalize": "nearest-existing-parent-realpath",
+      "workspace_matches": 2,
+      "state_component_symlink": false,
+      "expected": "reject"
+    },
+    {
+      "name": "symlinked-state-component",
+      "target_kind": "new",
+      "canonicalize": "nearest-existing-parent-realpath",
+      "workspace_matches": 1,
+      "state_component_symlink": true,
+      "expected": "reject"
+    }
+  ]
+}

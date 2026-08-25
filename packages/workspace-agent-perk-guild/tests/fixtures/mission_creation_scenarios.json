@@ -1,0 +1,100 @@
+{
+  "scenarios": [
+    {
+      "name": "session-ignores-existing-mission",
+      "scope": "session",
+      "explicit_path": "existing",
+      "contextual_mission": false,
+      "goal": "",
+      "expected": "session-only"
+    },
+    {
+      "name": "session-ignores-missing-mission",
+      "scope": "session",
+      "explicit_path": "missing",
+      "contextual_mission": false,
+      "goal": "",
+      "expected": "session-only"
+    },
+    {
+      "name": "mission-uses-explicit-existing-path",
+      "scope": "mission",
+      "explicit_path": "existing",
+      "contextual_mission": false,
+      "goal": "",
+      "expected": "use-explicit"
+    },
+    {
+      "name": "both-uses-explicit-existing-path",
+      "scope": "both",
+      "explicit_path": "existing",
+      "contextual_mission": false,
+      "goal": "",
+      "expected": "use-explicit"
+    },
+    {
+      "name": "mission-rejects-explicit-missing-path",
+      "scope": "mission",
+      "explicit_path": "missing",
+      "contextual_mission": true,
+      "goal": "Fallback must not hide the error",
+      "expected": "error"
+    },
+    {
+      "name": "both-rejects-explicit-missing-path",
+      "scope": "both",
+      "explicit_path": "missing",
+      "contextual_mission": true,
+      "goal": "Fallback must not hide the error",
+      "expected": "error"
+    },
+    {
+      "name": "mission-uses-context",
+      "scope": "mission",
+      "explicit_path": null,
+      "contextual_mission": true,
+      "goal": "",
+      "expected": "use-context"
+    },
+    {
+      "name": "both-uses-context",
+      "scope": "both",
+      "explicit_path": null,
+      "contextual_mission": true,
+      "goal": "",
+      "expected": "use-context"
+    },
+    {
+      "name": "mission-creates-from-goal",
+      "scope": "mission",
+      "explicit_path": null,
+      "contextual_mission": false,
+      "goal": "Reduce sign in confusion",
+      "expected": "create:reduce-sign-in-confusion.md"
+    },
+    {
+      "name": "both-reuses-derived-goal-name",
+      "scope": "both",
+      "explicit_path": null,
+      "contextual_mission": false,
+      "goal": "Reduce sign in confusion",
+      "expected": "create:reduce-sign-in-confusion.md"
+    },
+    {
+      "name": "both-skips-mission-without-target-or-goal",
+      "scope": "both",
+      "explicit_path": null,
+      "contextual_mission": false,
+      "goal": "",
+      "expected": "session-only"
+    },
+    {
+      "name": "mission-errors-without-target-or-goal",
+      "scope": "mission",
+      "explicit_path": null,
+      "contextual_mission": false,
+      "goal": "",
+      "expected": "error"
+    }
+  ]
+}

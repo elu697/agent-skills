@@ -1,0 +1,123 @@
+{
+  "scope_write_sets": [
+    {
+      "name": "enable-session",
+      "operation": "enable",
+      "scope": "session",
+      "stable_session_id": true,
+      "mission_target": "existing",
+      "expected_writes": ["session"],
+      "forbidden_writes": ["mission"]
+    },
+    {
+      "name": "enable-mission",
+      "operation": "enable",
+      "scope": "mission",
+      "stable_session_id": true,
+      "mission_target": "existing",
+      "expected_writes": ["mission"],
+      "forbidden_writes": ["session", "current_mission"]
+    },
+    {
+      "name": "enable-both",
+      "operation": "enable",
+      "scope": "both",
+      "stable_session_id": true,
+      "mission_target": "existing",
+      "expected_writes": ["session", "mission", "current_mission"],
+      "forbidden_writes": []
+    },
+    {
+      "name": "disable-session",
+      "operation": "disable",
+      "scope": "session",
+      "stable_session_id": true,
+      "mission_target": "existing",
+      "expected_writes": ["session"],
+      "forbidden_writes": ["mission"]
+    },
+    {
+      "name": "disable-mission",
+      "operation": "disable",
+      "scope": "mission",
+      "stable_session_id": true,
+      "mission_target": "existing",
+      "expected_writes": ["mission"],
+      "forbidden_writes": ["session", "current_mission"]
+    },
+    {
+      "name": "disable-both",
+      "operation": "disable",
+      "scope": "both",
+      "stable_session_id": true,
+      "mission_target": "existing",
+      "expected_writes": ["session", "mission"],
+      "forbidden_writes": []
+    }
+  ],
+  "effective_state": [
+    {
+      "session": "enabled",
+      "mission": "enabled",
+      "effective": "enabled"
+    },
+    {
+      "session": "enabled",
+      "mission": "disabled",
+      "effective": "enabled"
+    },
+    {
+      "session": "disabled",
+      "mission": "enabled",
+      "effective": "enabled"
+    },
+    {
+      "session": "disabled",
+      "mission": "disabled",
+      "effective": "disabled"
+    },
+    {
+      "session": "enabled",
+      "mission": "skipped",
+      "effective": "enabled"
+    }
+  ],
+  "active_role_conflicts": [
+    {
+      "name": "repair-loaded-enabled-session-only",
+      "loaded": {
+        "session": {"enabled": true, "active_role": "quest_runner"},
+        "mission": null
+      },
+      "pending_role": "strategist",
+      "expected_repairs": ["session"]
+    },
+    {
+      "name": "repair-loaded-enabled-mission-only",
+      "loaded": {
+        "session": null,
+        "mission": {"enabled": true, "active_role": "unknown"}
+      },
+      "pending_role": "quest_leader",
+      "expected_repairs": ["mission"]
+    },
+    {
+      "name": "do-not-repair-disabled-record",
+      "loaded": {
+        "session": {"enabled": false, "active_role": "quest_runner"},
+        "mission": null
+      },
+      "pending_role": "strategist",
+      "expected_repairs": []
+    },
+    {
+      "name": "do-not-repair-unloaded-record",
+      "loaded": {
+        "session": null,
+        "mission": null
+      },
+      "pending_role": "quest_runner",
+      "expected_repairs": []
+    }
+  ]
+}
