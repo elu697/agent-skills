@@ -3,6 +3,28 @@
 Public APM packages maintained in this repository. Each directory under
 `packages/` is independently consumable.
 
+## Installation
+
+Add the package you want to the consumer project's `apm.yml`:
+
+```yaml
+dependencies:
+  apm:
+    - git: elu697/agent-skills
+      path: packages/workspace-agent-perk-guild
+      ref: main
+```
+
+Then install the declared dependencies:
+
+```bash
+apm install
+```
+
+If the project wraps APM with its own setup command, use that command instead.
+For reproducible installations, replace `main` with a release tag or commit
+SHA.
+
 ## Packages
 
 | Package | Purpose | Documentation |
