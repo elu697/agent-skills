@@ -1,0 +1,12 @@
+name: workspace-agent-perk-guild
+version: 0.1.0
+description: |
+  perk-guild overlay。状況の正本、brief、局面の教義、遷移ゲート、作らない完了、親の総括。
+license: MIT
+type: skill
+includes: auto
+targets:
+  - cursor
+  - claude
+  - copilot
+  - codex

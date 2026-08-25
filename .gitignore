@@ -1,0 +1,7 @@
+.DS_Store
+.agents
+.claude
+.codex
+apm_modules
+apm.lock.yaml
+*-workspace
