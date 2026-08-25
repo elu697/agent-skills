@@ -1,33 +1,45 @@
-# 応答の型
+# Response patterns
 
-本文・例に、特定のプロジェクト名と perk 以外の手続きの固有名を書かない。
+These examples show behavior, not fixed wording. Localize every user-facing
+sentence according to the language and locale rules in `SKILL.md`. Keep file
+paths and status values unchanged.
 
-## 例1: 単発（目標も current も無い）
+Do not include project names or proper names of procedures other than perk
+terms.
 
-入力: この SKILL だけが呼ばれた。旗付きの進行中ミッションが2件ある。`current` はどちらも空。ユーザー目標も後続作業も無い。
+## Example 1: Standalone entry
 
-出力:
+Context: The skill is invoked with two open, enabled missions. Both have an
+empty `current`. The user supplied no goal or follow-up task.
+
+Canonical English response:
 
 ```text
-読み込みました。
+Loaded.
 
-進行中:
-* {file-a} / phase: research / current: （空） / updated_at: 2026-08-24
-* {file-b} / phase: frame / current: （空） / updated_at: 2026-08-25
+Open missions:
+* {file-a} / phase: research / current: (empty) / updated_at: 2026-08-24
+* {file-b} / phase: frame / current: (empty) / updated_at: 2026-08-25
 
-どの作業をしますか
+Which mission should I continue?
 ```
 
-実装へ進まない。コードやパッチを出さない。
+Translate the prose into the user's language. Do not implement, emit code, or
+produce a patch.
 
-## 例2: 指示あり（current がある）
+## Example 2: A current action exists
 
-入力: 作業ファイルの `current` が「戻る導線の文言を直す」。ユーザーは「続きをやって」。
+Context: The work file's `current` is `Clarify the back-navigation label`, and
+the user asks to continue.
 
-出力: その一事だけ続ける。進行中一覧は出さない。「どの作業をしますか」は聞かない。
+Continue only that action. Do not list all open missions and do not ask the
+user to choose.
 
-## 例3: 証拠の無い success
+## Example 3: Success without evidence
 
-入力: `phase: execute`。`evidence` は空。ユーザーは「実装できた。success にして閉じて」。
+Context: `phase` is `execute`, `evidence` is empty, and the user asks to close
+the mission as successful.
 
-出力: `phase` を `done` にしない。成功と書かない。検証の記録（コマンド、結果、場所）を `evidence` に残すか、残るまで `inspect` に止める。
+Do not set `phase` to `done` and do not declare success. Ask for verification
+records or keep the mission in `inspect` until `evidence` contains the
+performed command, result, or record location.

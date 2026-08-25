@@ -1,10 +1,13 @@
 ---
-description: perk-guild の発見。旗があるとき overlay を先に載せる
+description: Discovers perk-guild and loads its overlay when an enabled flag exists.
 applyTo: "**"
 ---
 
-# Perk / Guild 発見
+# Perk / Guild discovery
 
-作業ファイル先頭に `perk.guild: enabled` がある、またはこの Session で `/perk-guild-enable` したときは、`workspace-agent-perk-guild` を先に載せる。
+Load `workspace-agent-perk-guild` first when a work file's frontmatter contains
+`perk.guild: enabled` or when `/perk-guild-enable` was invoked in the current
+session.
 
-教義の全文はここへ書かない。載せるのは発見だけである。
+Keep the full doctrine in the skill. This instruction performs discovery only.
+The skill localizes user-facing output to the user's language and locale.

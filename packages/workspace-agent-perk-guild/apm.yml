@@ -1,7 +1,8 @@
 name: workspace-agent-perk-guild
-version: 0.1.0
+version: 0.1.1
 description: |
-  perk-guild overlay。状況の正本、brief、局面の教義、遷移ゲート、作らない完了、親の総括。
+  A perk-guild overlay for durable mission state, phase gates, evidence,
+  build-nothing outcomes, and parent-level closure.
 license: MIT
 type: skill
 includes: auto

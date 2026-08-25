@@ -1,4 +1,6 @@
 # packages
 
-1 ディレクトリが 1 パッケージ。説明は各ディレクトリの README を見る。
-一覧はリポジトリ直下の [README](../README.md) にある。
+Each directory is one APM package. See the README in each package directory
+for installation and usage details.
+
+The package catalog is in the repository [README](../README.md).

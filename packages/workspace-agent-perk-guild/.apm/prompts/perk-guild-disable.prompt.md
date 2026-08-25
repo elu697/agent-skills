@@ -1,21 +1,24 @@
 ---
 description: >-
-  perk-guild overlay を無効化する。Session と、対象の作業ファイル先頭の perk.guild を disabled にする。
-  他のミッションの旗は触らない。
+  Disables the perk-guild overlay for the current session and an optional
+  target work file. Sets perk.guild to disabled without changing other
+  missions or deleting mission state.
 ---
 
-# Perk / Guild 無効化
+# Disable Perk / Guild
 
-## Help情報
+## Help
 
-指定した作業ファイル（または文脈上の現行ファイル）の overlay を下ろす。
-他ファイルに残った旗は維持する。
+Disable the overlay for an explicit work file or the current contextual work
+file. Preserve flags on every other mission.
 
-* 対象ファイルの `perk.guild` を `disabled` にする
-* Session 用の旗があれば同様に下ろす
-* 無効化後は、そのファイルでは `workspace-agent-perk-guild` のゲートを掛けない
+* Set the target file's `perk.guild` to `disabled`.
+* Disable the session flag when it exists.
+* Stop applying `workspace-agent-perk-guild` gates to that file.
+* Localize user-facing output to the user's language and locale. Keep paths,
+  command names, YAML keys, and enum values unchanged.
 
-### Example
+### Examples
 
 ```text
 /perk-guild-disable
@@ -25,96 +28,85 @@ description: >-
 /perk-guild-disable .ai-agent/plan/login-home.md
 ```
 
-## 関連ファイル
+## Related
 
 * `workspace-agent-perk-guild`
 * `/perk-guild-enable`
 
-## 入力
+## Input
 
-### Optional: 作業ファイル
+### Optional: Work file
 
-* 引数のパス、または文脈上の現行作業ファイルから確定する
-* 未指定かつ文脈にも無い場合は、Session の旗だけを下ろして終了してよい
-* パスが指定されているが存在しない・複数候補で特定不能な場合はエラー終了する
+Resolve it from an explicit path or the current work-file context.
 
-#### 作業ファイル: 入力値の例
+* If neither exists, disable only the session flag and finish.
+* If an explicit path does not exist or resolves to multiple candidates,
+  return an error without asking a follow-up question.
+
+Examples:
 
 * `.ai-agent/plan/login-home.md`
-* （省略）→ Session のみ
+* omitted, meaning session only when no contextual file exists
 
-## 出力
+## Output
 
-### Required: 無効化結果
+Report either the disabled file path or that only the session was disabled.
 
-* 下ろしたファイルのパス、または Session のみであること
-
-#### 無効化結果: 出力値の例
+Canonical output shape:
 
 ```text
 perk.guild: disabled
 file: .ai-agent/plan/login-home.md
 ```
 
-## 手順
+Localize any explanatory prose, but do not translate these machine-readable
+fields.
+
+## Procedure
 
 ```mermaid
 flowchart TD
-    Start["/perk-guild-disable"] --> StepV["バリデーション"]
-    StepV --> Decision{"全て OK か"}
-    Decision -->|いいえ| Abort["エラー文言を出して終了"]
-    Decision -->|はい| Step1["ステップ1 対象を決める"]
-    Step1 --> Step2["ステップ2 旗を下ろす"]
-    Step2 --> Done["無効化結果"]
+    Start["Run /perk-guild-disable"] --> Validate["Validate input"]
+    Validate --> Valid{"Valid?"}
+    Valid -->|No| Abort["Return localized error"]
+    Valid -->|Yes| Target["Resolve target"]
+    Target --> Disable["Disable target and session"]
+    Disable --> Done["Report result"]
 ```
 
-### バリデーション
+### Validation
 
-入力:
+| Input | Valid when |
+| --- | --- |
+| Work file | Empty, or resolves to exactly one file |
 
-| Label | 値 | バリデーション |
-| --- | --- | --- |
-| 作業ファイル | {パス、または空} | ✅️ |
+If validation fails, return a localized equivalent of the following and stop:
 
-* 作業ファイルが指定されているが、存在しないまたは特定不能 → `作業ファイル` を ⛔️
-* 1つでも ⛔️ なら対話せず終了する
-
-```markdown
-{XXXX} が不明確です。
-コマンドを終了します。
+```text
+{input name} is ambiguous.
+Command aborted.
 ```
 
-### ステップ1: 対象を決める
+Do not ask the user to select or clarify within this command.
 
-* 指定または文脈のファイルがあればそれを対象にする
-* 無ければ Session の旗だけを対象にする
-* 他のミッションファイルは対象にしない
+### Step 1: Resolve the target
 
-### ステップ2: 旗を下ろす
+* Use an explicit or contextual work file when available.
+* Otherwise, target only the session flag.
+* Do not inspect or alter other mission files.
 
-* 対象ファイルがあるなら、先頭 YAML の `perk.guild` を `disabled` にする。他の欄は残す
-* `folder:this/.ai-agent/perk-guild.yaml` があれば `perk.guild: disabled` にする
-* プロダクションコードと作業本文は変えない
+### Step 2: Disable
 
-## ガードレール
+* When a target file exists, set only its `perk.guild` field to `disabled`.
+  Preserve its body and all other status fields.
+* If `folder:this/.ai-agent/perk-guild.yaml` exists, set its `perk.guild`
+  field to `disabled`.
+* Do not modify production code.
 
-* ユーザーと対話しない
-* 入力が不明確な場合はエラー終了する
+## Guardrails
 
-```markdown
-{XXXX} が不明確です。
-コマンドを終了します。
-```
-
-* 他ミッションの旗を一括で下ろさない
-* 作業本文と `phase` / `current` / `evidence` を消さない
-
-## ナレッジベース
-
-### DO: 無効化は対象ファイルと Session に限る
-
-* 駐車した他ミッションは、旗を残したまま再開できる
-
-### DO NOT: disabled のときに作業本文を消す
-
-* 理由: 無効化は overlay を切るだけである
+* Keep the command non-interactive.
+* Return a localized error and stop when explicit input is ambiguous.
+* Never bulk-disable other missions.
+* Do not delete the work-file body, `phase`, `current`, `evidence`, or brief.
+* Disabling removes the overlay; it does not erase the mission.

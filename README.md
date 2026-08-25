@@ -1,15 +1,17 @@
 # agent-skills
 
-APM パッケージの公開場所。`packages/` に 1 パッケージずつ置く。
+Public APM packages maintained in this repository. Each directory under
+`packages/` is independently consumable.
 
-## パッケージ
+## Packages
 
-| パッケージ | イメージ | 詳細 |
+| Package | Purpose | Documentation |
 | --- | --- | --- |
-| `workspace-agent-perk-guild` | 一件の状況をファイルに残す overlay。作らない完了と、親の総括を持つ | [README](packages/workspace-agent-perk-guild/README.md) |
+| `workspace-agent-perk-guild` | Keeps one mission's state in a durable file and supports evidence-gated or build-nothing closure | [README](packages/workspace-agent-perk-guild/README.md) |
 
-新しいパッケージは `packages/<name>/` を足し、この表とパッケージ側 README を揃える。
+When adding a package, create `packages/<name>/`, document it in that
+directory, and add it to this table.
 
-## ライセンス
+## License
 
 [MIT License](LICENSE)

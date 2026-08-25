@@ -1,18 +1,25 @@
 # workspace-agent-perk-guild
 
-一件の状況を、チャットではなく作業ファイルに残す overlay。
+An overlay that keeps one mission's state in a work file instead of relying on
+volatile chat context.
 
-実装の手順は別の手続きに任せる。こちらが持つのは、brief、局面、遷移ゲート、作らない完了、親の総括。
+It leaves implementation mechanics to the active execution procedure. The
+overlay owns the mission brief, phase doctrine, transition gates,
+build-nothing completion, and parent-level closure.
 
-## 入れるもの
+All user-facing messages follow the user's explicit language preference,
+conversation language, or environment locale. Skill instructions and
+machine-readable state remain in English.
 
-* SKILL `workspace-agent-perk-guild`
+## Included
+
+* Skill: `workspace-agent-perk-guild`
 * `/perk-guild-enable` / `/perk-guild-disable`
-* 旗があるときの発見用 instruction
+* Discovery instruction for `perk.guild: enabled`
 
-## 導入
+## Installation
 
-消費側の `apm.yml` に足す。
+Add the package to the consumer's `apm.yml`:
 
 ```yaml
 dependencies:
@@ -22,14 +29,20 @@ dependencies:
       ref: main
 ```
 
-足したら、そのプロジェクトの Agent インストールを回す。
+Then run the consumer project's Agent or APM installation command.
 
-## 使い方
+## Usage
 
-`/perk-guild-enable` で、Session と作業ファイル先頭に `perk.guild: enabled` を残す。続けて目標を書いてよい。目標が無い単発は、進行中を一覧してから選ぶ。
+Run `/perk-guild-enable` to persist `perk.guild: enabled` in the session and
+work file. A goal may follow the command. Without a goal, the skill lists open
+missions and asks which one to continue.
 
-有効なあいだは、局面を進めた応答の終わりに status を更新する。証拠の無い success では閉じない。
+While enabled, it updates status before ending any response that advances the
+mission. It does not accept evidence-free success.
 
-## ライセンス
+Run `/perk-guild-disable` to stop applying the overlay to the current mission
+without erasing mission state.
+
+## License
 
 [MIT License](../../LICENSE)

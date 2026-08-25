@@ -1,78 +1,115 @@
 ---
 name: workspace-agent-perk-guild
 description: >-
-  perk-guild overlay。状況の正本、brief、局面の教義、遷移ゲート、作らない完了、親の総括を持つ。
-  作業ファイル先頭に perk.guild: enabled があるとき、/perk-guild-enable したとき、
-  ミッション再開、コンテキスト圧縮後の続き、単発の perk-guild、成功や見送りの記載、
-  別件へ移る前、作るべきか迷ったとき、証拠の無い success を書くとき、いまやる一事を選ぶとき、
-  では必ず先にこの SKILL を載せる。読み込んだら直ちに再水和する。チャットの要約は正本にしない。
-  単発で目標も current も無いときは進行中ミッションを聞いてから動く。目標または current があるときは聞かず遂行する。
-  実行側の手続きが別に載っていても、親の総括はこの SKILL が持つ。
+  Applies the perk-guild overlay for a durable mission record, brief, phase
+  doctrine, transition gates, build-nothing outcomes, and parent-level
+  closure. Use this skill first whenever a work file begins with
+  perk.guild: enabled, after /perk-guild-enable, when resuming a mission or a
+  compressed conversation, before switching tasks, when deciding whether to
+  build, when recording success or a skip, or when selecting the single
+  current action. Rehydrate immediately after loading it. Never treat a chat
+  summary as the source of truth. With no goal or current action, list open
+  missions and ask the user to choose. With a goal or current action, proceed
+  without asking. Keep parent-level closure here even when an execution
+  procedure is also active.
 ---
 
 # Perk / Guild
 
-チャットは揮発する。夕方に戻ったとき、正本がチャットだと判断が消える。
-状況の正本はミッションのファイルに置く。
+Chat context is volatile. If the chat is the source of truth, decisions can
+disappear before the work resumes. Keep the durable state in a mission's work
+file.
 
-ミッションは perk の語であり、ディレクトリ名ではない。
-実体は、先頭に `perk.guild: enabled` がある作業ファイルである。
+In this skill, "mission" is a perk term, not a directory name. A mission is any
+work file whose frontmatter contains `perk.guild: enabled`.
 
-## 再水和
+## Rehydrate first
 
-初回も、圧縮後の再読込も、新しい窓も、この節から始める。前文を読んでから始めない。
-圧縮後は前文を信じると、閉じた判断やついで仕事が復活する。残っているのはファイルの `phase` と `current` である。
+Start here on the first load, after context compression, and in every new
+conversation. Do not reconstruct state from earlier prose. Doing so can revive
+closed decisions or incidental work. The file's `phase` and `current` fields
+are authoritative.
 
-1. 作業ファイルを探す。先頭に `perk.guild: enabled` がある文書が対象である
-2. 旗が一つも無い → overlay は効いていない。有効化されるまで、この SKILL のゲートは掛けない
-3. いま扱うファイルの status と brief をファイルから読む。チャットの要約は正本にしない
-4. `phase` で教義を一つ選ぶ。会話の空気で局面を推測しない。選んだ局面だけ [references/phases.md](references/phases.md) を読む
-5. `current` がある → 指示あり。その一事だけ続ける。圧縮前の「ついで」は引き継がない
-6. `current` が無く、ユーザー目標も後続作業も無い → 単発。入口の節へ行く
-7. 書き込みは冪等にする。同じ status を二度書いても壊れない
+1. Find work files whose frontmatter contains `perk.guild: enabled`.
+2. If none exist, the overlay is inactive. Do not apply its gates until it is
+   enabled.
+3. Read the selected file's status and brief. Do not use a chat summary as the
+   source of truth.
+4. Select exactly one doctrine from `phase`. Read only that phase in
+   [references/phases.md](references/phases.md).
+5. If `current` is non-empty, treat the mission as instructed and continue
+   only that action. Do not restore incidental work from before compression.
+6. If `current`, the user's goal, and any follow-up task are all empty, use
+   the standalone entry.
+7. Make every status write idempotent.
 
 ```mermaid
 flowchart TD
-  load["この SKILL を読んだ"] --> scan["旗の付いた作業ファイルを探す"]
-  scan --> none{"旗があるか"}
-  none -->|ない| idle["ゲートを掛けない"]
-  none -->|ある| read["status と brief を読む"]
-  read --> hasCurrent{"current または目標があるか"}
-  hasCurrent -->|ない| ask["単発入口"]
-  hasCurrent -->|ある| do["いまの一事を遂行する"]
+  load["Load this skill"] --> scan["Find flagged work files"]
+  scan --> any{"Any enabled files?"}
+  any -->|No| idle["Do not apply overlay gates"]
+  any -->|Yes| read["Read status and brief"]
+  read --> instructed{"Current action or user goal?"}
+  instructed -->|No| choose["Standalone entry"]
+  instructed -->|Yes| work["Perform the single current action"]
 ```
 
-単発と再開の応答の型は、入口または再開のときだけ [references/examples.md](references/examples.md) を読む。
+Read [references/examples.md](references/examples.md) only when entering
+standalone mode or resuming a mission.
 
-## 単発入口
+## Response language and locale
 
-この SKILL だけが呼ばれ、目標も後続作業も `current` も無いとき。
-無指示で実装に入ると、駐車した別件を勝手に進める。選ばせるのが親の仕事である。
+Keep skill instructions and machine-readable state in English. Adapt all
+user-facing prose to the user's environment:
 
-1. 「読み込みました。」と返す
-2. 旗が付き、`phase` が `done` でも `skip` でもないミッションを一覧する
-   * 各行: ファイル、`phase`、`current`、`updated_at`
-3. 0件なら、進行中は無いと書き、新しく始めるか聞く
-4. 1件以上なら、「どの作業をしますか」と聞く
-5. 聞かれる前に実装へ進まない
+1. Follow an explicitly requested language or locale.
+2. Otherwise, use the language of the current conversation or latest user
+   request.
+3. If neither is clear, use the host environment's locale.
+4. If no reliable signal exists, use concise English.
 
-目標、後続作業、または `current` があるときは、この入口を使わない。聞かない。その目標の解決に向けて、この SKILL どおりに遂行する。
+Localize confirmations, questions, headings, dates, and explanatory prose.
+Do not translate file paths, command names, YAML keys, enum values, or code.
+Do not infer the response language from the language of a work file alone.
 
-## 親と実行
+## Standalone entry
 
-追加で実行側の手続きが載ってもよい。
-実行側は作り方を知っている。親は一件の状況を閉じる。混ぜると、success の定義が二重になる。
+Use this entry only when this skill is invoked without a user goal,
+follow-up task, or `current` action. Starting implementation in that state
+could advance the wrong parked mission.
 
-* 実行の中身は、実行側の手続きに従う
-* 親の総括はこの SKILL が持つ。status、brief、遷移ゲート、作らない完了、証拠欄、いまやる一事、応答の締め
-* 下位は上位を命令しない
-* 実行側が success と書いても、証拠欄が空なら親は成功にしない
-* 実行側の完了条件（粒度、監査、検証の回し方）は親が書き換えない
-* 実行側の手続きを名前で呼ばない
+1. Reply with a short localized confirmation equivalent to "Loaded."
+2. List enabled missions whose `phase` is neither `done` nor `skip`.
+   Include the file, `phase`, `current`, and `updated_at` on each line.
+3. If the list is empty, say that no mission is in progress and ask whether
+   to start one.
+4. Otherwise, ask which mission to continue.
+5. Do not implement anything before the user chooses.
 
-## status
+When a goal, follow-up task, or `current` action exists, do not use this entry
+and do not ask the user to choose. Proceed toward that instruction.
 
-作業ファイル先頭の YAML に置く。欄を足して壊さない。無い欄は足してよい。
+## Parent and execution procedures
+
+An execution procedure may be active at the same time. The execution procedure
+knows how to do the work; this skill knows how to close one mission. Mixing
+those responsibilities creates competing definitions of success.
+
+* Follow the execution procedure for the implementation itself.
+* Keep the parent-level summary here: status, brief, transition gates,
+  build-nothing outcome, evidence, the single current action, and the closing
+  response.
+* A child procedure must not command its parent.
+* Do not accept an execution procedure's success when `evidence` is empty.
+* Do not rewrite the execution procedure's completion criteria, granularity,
+  audit, or verification loop.
+* Refer to it generically as "the execution procedure"; do not name a
+  particular procedure in this skill.
+
+## Status
+
+Store this YAML at the top of the work file. Preserve unknown fields and add
+missing fields when needed.
 
 ```yaml
 perk:
@@ -90,93 +127,111 @@ brief:
 target: ""
 ```
 
-* `phase`: `research` / `frame` / `execute` / `inspect` / `skip` / `done`
-* `current`: いまの作業ひとつ。空なら一事は未選択
-* `out_of_scope`: やらないこと
-* `evidence`: 実行した検証。コマンド、結果、記録の場所。空の success は禁止
-* `chat_sessions`: 会話の索引。本文や秘密は書かない
-* `brief.pain`: 誰の、何の痛みか
-* `brief.bounds`: やりすぎない範囲
-* `brief.skip_is_success`: 作らない判断も成果である
-* `target`: 対象の置き場。空のまま調査して閉じてよい
+* `phase`: `research`, `frame`, `execute`, `inspect`, `skip`, or `done`.
+* `current`: The single current action. Empty means no action is selected.
+* `out_of_scope`: Work the mission will not include.
+* `evidence`: Verification actually performed, including commands, results,
+  or record locations. Empty evidence cannot support success.
+* `chat_sessions`: Conversation references only. Do not store full chat text
+  or secrets.
+* `brief.pain`: Whose pain the mission addresses and what it is.
+* `brief.bounds`: The limit that prevents overbuilding.
+* `brief.skip_is_success`: Treat a reasoned build-nothing decision as a valid
+  outcome.
+* `target`: The target location. It may stay empty through research and a
+  build-nothing close.
 
-閉じたミッション（`skip` / `done`）は進行中一覧から外す。完了置き場へ移してよい。
+Exclude `skip` and `done` missions from the open-mission list. They may move to
+the workspace's completed-work location.
 
-局面を進めたら、その応答の終わりに status を更新する。圧縮の次ターンで戻れるようにするためである。
+Whenever a response advances the phase, update status before ending the
+response so the next conversation can rehydrate.
 
-## brief
+## Brief
 
-入口の契約である。作業本文の要件書式は、実行側があればそちらに任せる。
+The brief is the entry contract. If an execution procedure defines a
+requirements format, leave that format to the execution procedure.
 
-揃えるもの:
+Capture:
 
-* 誰の、何の痛みか
-* やりすぎない範囲
-* 作らない判断も成果とする
-* 対象は未定でよい
+* whose pain is being addressed and what it is;
+* the boundary that prevents overbuilding;
+* that building nothing can be a successful outcome;
+* an optional target.
 
-無指示の着想も、この型で置ける。
+Unrequested ideas may also be parked in this form.
 
-## 遷移ゲート
+## Transition gates
 
-進む前に通る。一文の禁止ではなく、通過条件である。
-実行側の品質手続きは置き換えない。足りない通過条件だけを足す。
+Treat these as entry conditions, not slogans. Do not replace an execution
+procedure's quality controls; add only the missing mission-level gates.
 
-* `research` の成果がファイルに無い状態で `execute` へ進まない
-* `frame`（完了条件と `out_of_scope`）がファイルに無い状態で範囲を増やさない
-* `progress` / `success` を書くとき、`evidence` に実行した検証を残す。検証の記録なら何でもよい。専用の点検ファイルは作らない
-* 別件へ移る前に status が書いてある。書いていなければ移らない
+* Do not enter `execute` until the work file records a `research` outcome.
+* Do not widen scope until the file records measurable completion criteria
+  and `out_of_scope`.
+* Before recording progress or success, add the verification actually
+  performed to `evidence`. Do not create a dedicated review file solely for
+  this overlay.
+* Before switching to another task, write the current mission's status.
 
-後続の依頼は種類で見る。固有の手続き名では分岐しない。
+Classify follow-up requests by intent rather than by a procedure's proper name:
 
-* 調べる、需要、作るべきか → `research`
-* 方針、完了条件、範囲 → `frame`
-* 作る、直す、実装 → `execute`
-* 確認、成功、失敗 → `inspect`
-* 作らない、見送る → `skip`
-* 戻る、続ける、再開 → 再水和
+* investigate demand or whether to build -> `research`
+* define direction, completion criteria, or scope -> `frame`
+* build, fix, or implement -> `execute`
+* verify, accept, or reject -> `inspect`
+* choose not to build or defer -> `skip`
+* return, continue, or resume -> rehydrate
 
-## 停車と再開
+## Park and resume
 
-* 別件の前に status を書く
-* 再開は status と brief と `current` だけ読む。生ログと古い会話の空気は読まない
-* 会話の識別子が取れるなら `chat_sessions` に 1 件足す。`id` と `kind` と短い `note`。取れなければ空でよい
-* 新しい窓も圧縮後も、再水和と同じ
+* Write status before switching tasks.
+* On resume, read status, brief, and `current`; do not replay raw logs or the
+  mood of an old conversation.
+* If a conversation identifier is available, append one `chat_sessions`
+  entry with `id`, `kind`, and a short `note`. Leave it empty when no
+  identifier is available.
+* Treat a new conversation and post-compression continuation the same way.
 
-## 権限の向き
+## Authority direction
 
-* 親が作業を渡す。下位は提案、結果、点検を返す
-* 下位が上位を命令する応答は無効である
+* The parent delegates work. A child returns proposals, results, and checks.
+* Reject a response in which a child procedure commands its parent.
 
-## 衝突
+## Conflict resolution
 
-guild perk が勝つもの:
+The guild perk owns:
 
-* 状況の正本
-* brief
-* 局面の教義
-* 遷移ゲート
-* 作らない完了
-* 再開
-* 親の総括
+* the source of truth;
+* the brief;
+* phase doctrine;
+* transition gates;
+* build-nothing completion;
+* resume behavior;
+* parent-level closure.
 
-実行側が勝つもの:
+The execution procedure owns:
 
-* どう実装するかの手順
-* 粒度、監査、検証の回し方
-* 横断の知見メモ（一件の status とは別）
+* implementation steps;
+* work granularity, audit, and verification loops;
+* cross-mission knowledge records.
 
-## 有効と無効
+## Enable and disable
 
-* 有効: 作業ファイル先頭が `perk.guild: enabled`。Session で有効化したあとも、同じ欄をファイルに残す
-* 無効: `perk.guild: disabled`。以降このファイルではゲートを掛けない。他ファイルの旗は触らない
-* 有効化と同時に、いまの作業ファイルへ旗を押す。ファイルがまだ無いなら、作業ファイルを起こしてから旗を押す
+* Enabled: the work file begins with `perk.guild: enabled`. After enabling it
+  for a session, persist the same field in the work file.
+* Disabled: set `perk.guild: disabled`. Stop applying gates to that file and
+  leave all other mission flags unchanged.
+* On enable, flag the current work file. If it does not exist, create the work
+  file before adding the flag.
 
-## ガードレール
+## Guardrails
 
-* この本文、description、例、衝突表に、特定のプロジェクト名と、perk 以外の手続きの固有名を書かない。書いてよいのは perk 自身の語と局面の種類だけである
-* チャット履歴を正本にしない
-* 未実行の検証を成功と書かない
-* いまやることは一つに限る
-* 作ることが目的化したら `research` または `frame` へ戻る
-* 応答の終わりに status を更新する
+* Keep this skill, its description, examples, and conflict table free of
+  project names and proper names of procedures other than perk terms and
+  phase names.
+* Never use chat history as the source of truth.
+* Never claim unperformed verification as evidence.
+* Keep exactly one current action.
+* Return to `research` or `frame` when building becomes the goal by itself.
+* Update status before ending any response that changes mission state.

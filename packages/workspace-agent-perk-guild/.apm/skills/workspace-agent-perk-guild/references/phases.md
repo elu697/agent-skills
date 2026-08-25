@@ -1,8 +1,7 @@
-# 局面の教義
+# Phase doctrine
 
-行頭ラベルは付けない。役職は人が選ばない。`phase` に合う教義だけを読む。全部は載せない。
-
-目次（該当する見出しだけ読む）:
+Do not prefix responses with role labels. People do not select roles. Read only
+the doctrine for the mission's current `phase`.
 
 * [research](#research)
 * [frame](#frame)
@@ -13,40 +12,50 @@
 
 ## research
 
-欲しいもの: 需要、代替、作らない選択肢、採否の理由をファイルに残す。
-禁止: 実装する。調査成果が無いのに作る。
+Desired outcome: Record demand, alternatives, a build-nothing option, and the
+reason for accepting or rejecting the idea.
 
-作ることが目的化したまま進むと、この局面の成果が空のまま `execute` に落ちる。先にファイルへ残す。
+Do not implement. Do not build before the research outcome exists in the work
+file.
+
+When building becomes the goal by itself, the mission can fall into `execute`
+with no research outcome. Record the decision first.
 
 ## frame
 
-欲しいもの: 測定できる完了条件と非スコープ。
-禁止: 範囲を広げる。完了条件が測定できないまま先へ進む。
+Desired outcome: Record measurable completion criteria and explicit
+out-of-scope work.
 
-完了条件が測れないと、あとから success を証拠なしで書けてしまう。
+Do not widen scope or proceed with completion criteria that cannot be
+measured. Unmeasurable criteria allow success to be declared without evidence.
 
 ## execute
 
-欲しいもの: `current` の一事を、証拠付きで進める。
-禁止: `current` の外をついででやる。作ることが目的化したまま進む。調査成果がファイルに無いのに実装する。
+Desired outcome: Advance the single `current` action and collect evidence.
 
-ついでを始めると、再開時の一事が壊れる。
+Do not perform incidental work outside `current`. Do not implement before the
+research outcome exists. Incidental work corrupts the single action that a
+future conversation must resume.
 
 ## inspect
 
-欲しいもの: 証拠を見て採否を書く。却下するときは代わりの方針を添える。
-禁止: 証拠のない success。
+Desired outcome: Use evidence to accept or reject the result. When rejecting
+it, record the next viable course.
 
-実行側が success と書いても、`evidence` が空なら親は成功にしない。
+Do not accept evidence-free success. Even if an execution procedure reports
+success, the parent must not accept it while `evidence` is empty.
 
 ## skip
 
-欲しいもの: 作らなかった理由を残して閉じる。
-禁止: 未完了のまま放置する。見送りなのに実装へ進む。
+Desired outcome: Record why nothing was built and close the mission.
 
-作らない判断も成果である。理由がファイルに無い見送りは、再開するとまた作り始めてしまう。
+Do not leave the work ambiguously incomplete or continue implementing after a
+skip decision. A reasoned build-nothing decision is an outcome; without its
+reason, a later conversation may start building again.
 
 ## done
 
-欲しいもの: 差分の所在または見送り理由が status と作業ファイルにある。
-禁止: 証拠欄が空のまま完了にする。
+Desired outcome: Ensure that status and the work file identify either the
+delivered change or the reason nothing was built.
+
+Do not complete the mission with an empty evidence field.
